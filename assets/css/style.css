@@ -1,0 +1,282 @@
+/* assets/css/style.css */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap');
+
+:root {
+    /* Paleta Corporativa Neobanco */
+    --main-bg: #F4F7FE;          /* Fondo gris muy pálido */
+    --sidebar-bg: #ffffff;       /* Sidebar blanco puro */
+    --text-primary: #2B3674;     /* Azul oscuro casi negro */
+    --text-secondary: #A3AED0;   /* Gris suave para textos secundarios */
+    --accent-color: #4318FF;     /* Azul Eléctrico (Marca) */
+    --danger-color: #EE5D50;     /* Rojo suave */
+    --success-color: #05CD99;    /* Verde menta */
+
+    /* Variables de Componentes */
+    --card-radius: 20px;
+    --card-shadow: 0px 18px 40px rgba(112, 144, 176, 0.12);
+}
+
+body {
+    background-color: var(--main-bg);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--text-primary);
+    overflow-x: hidden;
+}
+
+/* --- LAYOUT SIDEBAR --- */
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#sidebar {
+    min-width: 250px;
+    max-width: 250px;
+    background: var(--sidebar-bg);
+    min-height: 100vh;
+    transition: all 0.3s;
+    position: fixed; /* Fijo a la izquierda */
+    z-index: 999;
+}
+
+#sidebar .sidebar-header {
+    padding: 30px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#sidebar ul.components {
+    padding: 20px 0;
+}
+
+#sidebar ul li {
+    padding: 5px 15px;
+}
+
+#sidebar ul li a {
+    padding: 15px;
+    font-size: 1.1em;
+    display: block;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 15px;
+    transition: 0.3s;
+    font-weight: 500;
+}
+
+#sidebar ul li a:hover, #sidebar ul li a.active {
+    color: var(--accent-color);
+    background: rgba(67, 24, 255, 0.1); /* Fondo azul muy clarito */
+    font-weight: 700;
+}
+
+#sidebar ul li a i {
+    margin-right: 15px;
+    width: 20px;
+    text-align: center;
+}
+
+/* --- CONTENIDO PRINCIPAL --- */
+#content {
+    width: 100%;
+    padding: 20px;
+    min-height: 100vh;
+    transition: all 0.3s;
+    margin-left: 250px; /* Dejar espacio para el sidebar */
+}
+
+/* --- TARJETAS NEOBANCO --- */
+.card-neo {
+    background: #ffffff;
+    border: none;
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    padding: 20px;
+    margin-bottom: 25px;
+}
+
+.card-title-neo {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.card-value-neo {
+    color: var(--text-primary);
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* Tarjeta Destacada (Saldo) */
+.card-balance {
+    background: linear-gradient(86.8deg, #4318FF 0%, #868CFF 100%);
+    color: white;
+}
+.card-balance .card-title-neo, .card-balance .card-value-neo, .card-balance small {
+    color: white;
+}
+
+/* Tablas */
+.table-neo th {
+    color: var(--text-secondary);
+    font-weight: 500;
+    border-bottom: 1px solid #E9EDF7;
+    padding-bottom: 15px;
+}
+.table-neo td {
+    padding: 20px 10px;
+    vertical-align: middle;
+    color: var(--text-primary);
+    font-weight: 700;
+}
+.table-neo td small {
+    font-weight: 400;
+    color: var(--text-secondary);
+}
+
+/* Responsive: Celular */
+@media (max-width: 768px) {
+    #sidebar { margin-left: -250px; }
+    #sidebar.active { margin-left: 0; }
+    #content { margin-left: 0; }
+}
+
+/* --- TARJETAS DE CRÉDITO (Módulo) --- */
+.credit-card-wrap {
+    perspective: 1000px;
+    width: 420px; /* AUMENTADO: De 350px a 420px */
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.credit-card {
+    width: 100%;
+    height: 260px; /* AUMENTADO: De 220px a 260px (Mantiene proporción real) */
+    background: linear-gradient(135deg, #4318FF 0%, #9834eb 100%);
+    border-radius: 25px; /* Bordes un poco más redondeados */
+    padding: 30px; /* Más espacio interno */
+    color: white;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(67, 24, 255, 0.25);
+    transition: all 0.5s ease;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Estado Congelado (Gris) */
+.credit-card.frozen {
+    background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%) !important;
+    filter: grayscale(100%);
+    box-shadow: none;
+}
+
+/* Chip Dorado */
+.chip {
+    width: 50px;
+    height: 35px;
+    background: linear-gradient(135deg, #fce38a 0%, #f38181 100%);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.card-number {
+    font-family: 'Courier New', monospace;
+    font-size: 1.9rem; /* AUMENTADO: De 1.5rem a 1.9rem para que llene bien */
+    letter-spacing: 4px; /* Más espacio entre números */
+    margin-bottom: 30px;
+
+    text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    font-weight: bold;
+}
+
+.card-holder { font-size: 0.7rem; text-transform: uppercase; opacity: 0.8; letter-spacing: 1px;}
+.card-name { font-size: 1.1rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;}
+
+.card-logo {
+    font-size: 3.5rem; /* Visa más grande */
+    opacity: 0.9;
+}
+
+/* Candado Gigante */
+.lock-overlay {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 80px;
+    opacity: 0;
+    transition: 0.3s;
+    color: white;
+    z-index: 10;
+}
+.credit-card.frozen .lock-overlay { opacity: 0.9; }
+
+/* --- ESTILOS DE LOGIN --- */
+.login-wrapper {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #F4F7FE 0%, #E2E8F0 100%);
+    padding: 20px;
+}
+
+.login-card {
+    background: white;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 30px; /* Bordes extra suaves */
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(112, 144, 176, 0.15);
+    transition: transform 0.3s ease;
+}
+
+.login-card:hover {
+    transform: translateY(-5px);
+}
+
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-logo {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+/* Inputs personalizados para Login */
+.input-group-text {
+    background-color: #F4F7FE;
+    border: none;
+    color: var(--text-secondary);
+}
+
+.form-control-login {
+    background-color: #F4F7FE;
+    border: none;
+    height: 50px;
+    padding-left: 15px;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.form-control-login:focus {
+    background-color: #fff;
+    box-shadow: 0 0 0 2px var(--accent-color);
+}
+
+/* Decoración de fondo (Círculos difuminados) opcional */
+.bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 0;
+}
+.shape-1 { background: rgba(67, 24, 255, 0.15); width: 300px; height: 300px; top: -100px; left: -100px; }
+.shape-2 { background: rgba(5, 205, 153, 0.15); width: 250px; height: 250px; bottom: -50px; right: -50px; }
