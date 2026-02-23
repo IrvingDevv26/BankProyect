@@ -1,0 +1,6 @@
+projectKey=neobank_local
+serverUrl=http://localhost:9000
+serverVersion=26.1.0.118079
+dashboardUrl=http://localhost:9000/dashboard?id=neobank_local
+ceTaskId=188f1887-110c-4990-b18c-abfee2d93f1c
+ceTaskUrl=http://localhost:9000/api/ce/task?id=188f1887-110c-4990-b18c-abfee2d93f1c
