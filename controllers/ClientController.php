@@ -5,7 +5,6 @@ class ClientController
     public function index()
     {
         global $pdo;
-
         if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'cliente') {
             header("Location: index.php?action=login");
             exit;
@@ -17,20 +16,22 @@ class ClientController
         $stmt = $pdo->prepare("SELECT *, nombre_completo AS nombre FROM usuarios WHERE id = :id");
         $stmt->execute(['id' => $user_id]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
+        // 1. Obtener Cuenta y Saldo
+        $stmt = $pdo->prepare("SELECT * FROM cuentas WHERE usuario_id = :uid");
+        $stmt->execute(['uid' => $user_id]);
+        $cuenta = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        // 2. Obtener la CUENTA PRINCIPAL del usuario
-        // (Por ahora asumimos que solo tiene una, luego haremos selectores de cuenta)
-        $stmt_cuenta = $pdo->prepare("SELECT * FROM cuentas WHERE usuario_id = :id LIMIT 1");
-        $stmt_cuenta->execute(['id' => $user_id]);
-        $cuenta = $stmt_cuenta->fetch(PDO::FETCH_ASSOC);
+        // 2. Lógica del Buscador (CORREGIDA PARA EVITAR ERROR HY093)
+        $busqueda = $_GET['q'] ?? '';
 
-        // Si no tiene cuenta, creamos una virtual vacía para que no falle la vista
-        if (!$cuenta) {
-            $cuenta = ['id' => 0, 'numero_cuenta' => 'N/A', 'saldo' => 0.00];
-        }
+        // Usamos nombres únicos (:cid1 y :cid2) aunque sea el mismo valor
+        $sql = "SELECT * FROM transacciones 
+                WHERE (cuenta_origen_id = :cid1 OR cuenta_destino_id = :cid2)";
 
-        // 3. Obtener Historial usando el ID de la CUENTA, no del usuario
-        $cuenta_id = $cuenta['id'];
+        $params = [
+            'cid1' => $cuenta['id'],
+            'cid2' => $cuenta['id']
+        ];
 
         $sql = "SELECT t.*, 
                 c_origen.numero_cuenta as cuenta_origen, 
@@ -40,15 +41,19 @@ class ClientController
                 LEFT JOIN cuentas c_destino ON t.cuenta_destino_id = c_destino.id
                 WHERE t.cuenta_origen_id = :id_origen OR t.cuenta_destino_id = :id_destino 
                 ORDER BY t.fecha_transaccion DESC LIMIT 10";
+        if (!empty($busqueda)) {
+            // También usamos nombres únicos para la búsqueda
+            $sql .= " AND (descripcion LIKE :busqueda1 OR tipo LIKE :busqueda2)";
+            $params['busqueda1'] = "%$busqueda%";
+            $params['busqueda2'] = "%$busqueda%";
+        }
 
-        $stmt_hist = $pdo->prepare($sql);
-        $stmt_hist->execute([
-            'id_origen' => $cuenta_id,
-            'id_destino' => $cuenta_id
-        ]);
-        $transacciones = $stmt_hist->fetchAll(PDO::FETCH_ASSOC);
+        $sql .= " ORDER BY fecha DESC LIMIT 10";
 
-        // Pasamos tanto $usuario como $cuenta a la vista
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $transacciones = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
         require 'views/client/dashboard.php';
     }
 
