@@ -30,8 +30,8 @@ CREATE TABLE IF NOT EXISTS cuentas (
 -- Tabla de Transacciones
 CREATE TABLE IF NOT EXISTS transacciones (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    cuenta_origen_id INT NOT NULL,
-    cuenta_destino_id INT NULL, -- Puede ser NULL si es depósito/retiro externo
+    cuenta_origen_id INT NULL, -- Puede ser NULL si es depósito externo
+    cuenta_destino_id INT NULL, -- Puede ser NULL si es retiro externo
     tipo_transaccion ENUM('transferencia', 'deposito', 'retiro', 'pago_servicio') NOT NULL,
     monto DECIMAL(15, 2) NOT NULL,
     descripcion VARCHAR(255) NULL,

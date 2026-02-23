@@ -8,6 +8,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="assets/css/style.css" rel="stylesheet">
+    <script>
+        const theme = localStorage.getItem('neobank-theme') || 'light';
+        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
 </head>
 
 <body>
@@ -43,135 +47,132 @@
                         <?= strtoupper(substr($_SESSION['nombre'], 0, 1)) ?>
                     </div>
                 </div>
-            </nav>
+                <div class="rounded-circle d-flex align-items-center justify-content-center bg-surface-2 border-theme"
+                    style="width: 48px; height: 48px; color: var(--accent-primary); font-weight: 700; font-size: 1.2rem; border: 1px solid;">
+                    <?= strtoupper(substr($usuario['nombre'], 0, 1)) ?>
+                </div>
+            </div>
 
-            <div class="row">
-
-                <div class="col-lg-4 col-md-12">
-                    <div class="card-neo card-balance">
-                        <div class="d-flex justify-content-between">
-                            <div class="card-title-neo text-white">Balance Total</div>
-                            <i class="bi bi-wallet2 text-white opacity-50 fs-4"></i>
-                        </div>
-                        <div class="card-value-neo mt-2">
-                            $ <span id="saldo-display"><?= number_format($cuenta['saldo'], 2) ?></span>
-                        </div>
-                        <small class="opacity-75">Cuenta: **** <?= substr($cuenta['numero_cuenta'], -4) ?></small>
-                        <div class="mt-4 pt-3 border-top border-white border-opacity-25">
-                            <button class="btn btn-sm btn-light text-primary fw-bold rounded-pill px-3">
-                                <i class="bi bi-plus-circle me-1"></i> Ingresar Dinero
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="card-neo">
-                        <h5 class="card-title-neo mb-4 text-primary fw-bold">
-                            <i class="bi bi-send me-2"></i>Transferencia Rápida
-                        </h5>
-                        <form id="form-transferencia">
-                            <div class="mb-3">
-                                <label class="text-secondary small mb-1 fw-bold">DESTINATARIO</label>
-                                <div class="input-group">
-                                    <span class="input-group-text border-0 bg-light"><i
-                                            class="bi bi-envelope"></i></span>
-                                    <input type="email" id="destinatario" class="form-control bg-light border-0"
-                                        placeholder="correo@usuario.com" style="height: 45px;">
-                                </div>
-                            </div>
-                            <div class="mb-3">
-                                <label class="text-secondary small mb-1 fw-bold">MONTO</label>
-                                <div class="input-group">
-                                    <span class="input-group-text border-0 bg-light fw-bold text-primary">$</span>
-                                    <input type="number" id="monto"
-                                        class="form-control bg-light border-0 fw-bold text-primary" placeholder="0.00"
-                                        style="height: 45px;">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary w-100 py-3 rounded-pill fw-bold shadow-sm"
-                                style="background: var(--accent-color); border:none;">
-                                Enviar Dinero Ahora
-                            </button>
-                        </form>
-                    </div>
+            <!-- Massive Hero Balance -->
+            <div class="hero-balance-section">
+                <div class="hero-balance-label">Balance Total</div>
+                <div class="hero-balance-amount">
+                    $<span id="saldo-display"><?= number_format($cuenta['saldo'], 2) ?></span>
+                </div>
+                <div class="text-secondary small font-monospace">
+                    **** **** **** <?= substr($cuenta['numero_cuenta'], -4) ?>
                 </div>
 
-                <div class="col-lg-8 col-md-12">
-                    <div class="card-neo h-100">
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h5 class="fw-bold text-primary m-0">Movimientos recientes</h5>
-                            <button class="btn btn-sm btn-light text-secondary rounded-pill">
-                                Ver todos <i class="bi bi-arrow-right ms-1"></i>
+                <!-- Action Pills -->
+                <div class="action-grid mt-4">
+                    <a href="#" class="action-pill" data-bs-toggle="modal" data-bs-target="#transferModal">
+                        <i class="bi bi-send-fill"></i>
+                        <span>Enviar</span>
+                    </a>
+                    <a href="#" class="action-pill">
+                        <i class="bi bi-plus-lg"></i>
+                        <span>Ingresar</span>
+                    </a>
+                    <a href="index.php?action=tarjetas" class="action-pill">
+                        <i class="bi bi-credit-card-2-front-fill"></i>
+                        <span>Tarjetas</span>
+                    </a>
+                    <a href="#" class="action-pill">
+                        <i class="bi bi-three-dots"></i>
+                        <span>Más</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Transactions Edge-to-Edge List -->
+            <div class="mt-5">
+                <div class="d-flex justify-content-between align-items-end mb-3">
+                    <h5 class="fw-bold m-0 text-primary-var">Últimos Movimientos</h5>
+                    <a href="index.php?action=reportes" class="text-accent text-decoration-none small fw-bold">Ver
+                        todos</a>
+                </div>
+
+                <div class="card-neo p-0">
+                    <div class="list-neo">
+                        <?php if (count($transacciones) > 0): ?>
+                            <?php foreach ($transacciones as $t): ?>
+                                <?php
+                                $soy_destino = ($t['cuenta_destino_id'] == $cuenta['id']);
+                                $es_deposito = ($t['tipo_transaccion'] == 'deposito');
+                                $es_positivo = $soy_destino || $es_deposito;
+
+                                $signo = $es_positivo ? '+' : '-';
+                                $clase_monto = $es_positivo ? 'text-success' : 'text-primary-var';
+                                $icon_dir = $es_positivo ? 'down' : 'up';
+                                $icon_class = $es_positivo ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
+
+                                $titulo = ucfirst($t['tipo_transaccion']);
+                                $subtitulo = date('d M, h:i a', strtotime($t['fecha_transaccion']));
+
+                                if ($t['tipo_transaccion'] == 'transferencia') {
+                                    $titulo = $es_positivo ? 'De: ' . $t['cuenta_origen'] : 'Para: ' . $t['cuenta_destino'];
+                                }
+                                ?>
+                                <div class="list-item px-3">
+                                    <div class="d-flex align-items-center">
+                                        <div class="tx-icon <?= $icon_dir ?> me-3">
+                                            <i class="bi <?= $icon_class ?>"></i>
+                                        </div>
+                                        <div>
+                                            <div class="fw-bold text-primary-var mb-1"><?= htmlspecialchars($titulo) ?></div>
+                                            <div class="text-secondary small"><?= $subtitulo ?></div>
+                                        </div>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="tx-amount <?= $clase_monto ?>">
+                                            <?= $signo ?>$<?= number_format($t['monto'], 2) ?>
+                                        </div>
+                                        <div class="text-secondary small" style="font-size: 0.7rem;">Completado</div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <div class="text-center py-5 text-secondary">
+                                <i class="bi bi-inbox fs-1 mb-2 d-block opacity-50"></i>
+                                Sin movimientos aún
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Quick Transfer Modal -->
+    <div class="modal fade" id="transferModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-theme shadow">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-primary-var">Transferencia Rápida</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <form id="form-transferencia">
+                        <div class="mb-4">
+                            <label class="form-label">DESTINATARIO (CORREO)</label>
+                            <input type="email" id="destinatario" class="form-control" placeholder="usuario@correo.com"
+                                required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label">MONTO</label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                <input type="number" id="monto" class="form-control fs-4 fw-bold text-accent"
+                                    placeholder="0.00" required>
+                            </div>
+                        </div>
+                        <div class="d-grid mt-2">
+                            <button type="submit" class="btn btn-primary">
+                                Enviar Dinero
                             </button>
                         </div>
-
-                        <div class="table-responsive">
-                            <table class="table table-neo align-middle">
-                                <thead>
-                                    <tr>
-                                        <th style="width: 40%">Transacción</th>
-                                        <th>Fecha</th>
-                                        <th>Monto</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (count($transacciones) > 0): ?>
-                                        <?php foreach ($transacciones as $t): ?>
-                                            <?php
-                                            $soy_destino = ($t['cuenta_destino_id'] == $cuenta['id']);
-                                            $es_deposito = ($t['tipo_transaccion'] == 'deposito');
-                                            $es_positivo = $soy_destino || $es_deposito;
-
-                                            $signo = $es_positivo ? '+' : '-';
-                                            $clase_monto = $es_positivo ? 'text-success' : 'text-danger';
-
-                                            // Iconos Bootstrap
-                                            $icono = $es_positivo ? 'bi-arrow-down-left' : 'bi-arrow-up-right';
-                                            $bg_icono = $es_positivo ? 'bg-success' : 'bg-danger';
-
-                                            $titulo = ucfirst($t['tipo_transaccion']);
-                                            if ($t['tipo_transaccion'] == 'transferencia') {
-                                                $titulo = $es_positivo ? 'Recibido de ' . $t['cuenta_origen'] : 'Enviado a ' . $t['cuenta_destino'];
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="me-3 rounded-circle <?= $bg_icono ?> bg-opacity-10 text-<?= $es_positivo ? 'success' : 'danger' ?> d-flex align-items-center justify-content-center"
-                                                            style="width:40px; height:40px;">
-                                                            <i class="bi <?= $icono ?> fs-5"></i>
-                                                        </div>
-                                                        <div>
-                                                            <div class="fw-bold text-dark"><?= htmlspecialchars($titulo) ?>
-                                                            </div>
-                                                            <small class="text-muted" style="font-size: 0.75rem">ID:
-                                                                #<?= str_pad($t['id'], 8, '0', STR_PAD_LEFT) ?></small>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="text-secondary fw-normal">
-                                                    <?= date('d M, h:i a', strtotime($t['fecha_transaccion'])) ?>
-                                                </td>
-                                                <td class="<?= $clase_monto ?> fw-bold">
-                                                    <?= $signo ?> $<?= number_format($t['monto'], 2) ?>
-                                                </td>
-                                                <td>
-                                                    <span
-                                                        class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 border border-success border-opacity-10">
-                                                        Completado
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="4" class="text-center py-5 text-secondary">Sin movimientos aún</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    </form>
                 </div>
 
         <div class="row mb-4">

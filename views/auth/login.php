@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,83 +8,63 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="assets/css/style.css" rel="stylesheet">
+    <script>
+        const theme = localStorage.getItem('neobank-theme') || 'light';
+        if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    </script>
 </head>
+
 <body>
-
-<div class="bg-shape shape-1"></div>
-<div class="bg-shape shape-2"></div>
-
-<div class="login-wrapper position-relative" style="z-index: 1;">
-    <div class="login-card">
-
-        <div class="login-header">
-            <div class="login-logo">
-                <span style="color: var(--accent-color)">Neo</span>Bank
+    <div class="login-wrapper">
+        <div class="login-card">
+            <div class="mb-4 text-center">
+                <h1 class="fw-bold mb-0" style="font-size: 2.5rem; letter-spacing: -1px;">
+                    <i class="bi bi-bank text-accent me-2"></i><span class="text-accent">Neo</span>Bank
+                </h1>
+                <p class="text-secondary mt-2 small text-uppercase" style="letter-spacing: 1px;">
+                    Acceso Seguro
+                </p>
             </div>
-            <p class="text-secondary mb-0">Banca Segura y Digital</p>
-            <small class="text-muted" style="font-size: 0.8rem">Ingresa tus credenciales para continuar</small>
-        </div>
 
-        <?php if (isset($_GET['msg']) && $_GET['msg'] == 'timeout'): ?>
-            <div class="alert alert-warning border-0 bg-warning bg-opacity-10 text-warning d-flex align-items-center mb-4 rounded-3">
-                <i class="bi bi-clock-history fs-4 me-3"></i>
-                <div>
-                    <strong>Sesión Expirada</strong><br>
-                    <small>Por seguridad, tu sesión se cerró tras 10 min de inactividad.</small>
+            <?php if (isset($_SESSION['error'])): ?>
+                <div class="alert alert-danger" style="border-radius: 12px; font-weight: 500;">
+                    <i class="bi bi-exclamation-circle-fill me-2"></i>
+                    <?= $_SESSION['error'];
+                    unset($_SESSION['error']); ?>
                 </div>
-            </div>
-        <?php endif; ?>
+            <?php endif; ?>
 
-        <?php if (isset($error)): ?>
-            <div class="alert alert-danger border-0 bg-danger bg-opacity-10 text-danger d-flex align-items-center mb-4 rounded-3">
-                <i class="bi bi-exclamation-triangle-fill fs-4 me-3"></i>
-                <div>
-                    <strong>Acceso Denegado</strong><br>
-                    <small><?= htmlspecialchars($error) ?></small>
+            <form method="POST" action="index.php?action=login" id="loginForm">
+                <div class="mb-4 text-start">
+                    <label class="form-label">Correo Electrónico</label>
+                    <input type="email" name="email" class="form-control form-control-lg"
+                        placeholder="usuario@correo.com" required style="font-size: 1rem;">
                 </div>
-            </div>
-        <?php endif; ?>
 
-        <form method="POST" action="index.php?action=login" id="loginForm">
-
-            <div class="mb-4">
-                <label class="form-label text-secondary fw-bold small ms-1">CORREO ELECTRÓNICO</label>
-                <div class="input-group">
-                    <span class="input-group-text rounded-start-pill ps-3"><i class="bi bi-envelope"></i></span>
-                    <input type="email" name="email" class="form-control form-control-login rounded-end-pill" placeholder="nombre@correo.com" required>
+                <div class="mb-5 text-start">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <label class="form-label mb-0">Contraseña</label>
+                        <a href="#" class="text-accent text-decoration-none small fw-bold"
+                            style="font-size: 0.8rem;">¿Olvidaste tu contraseña?</a>
+                    </div>
+                    <input type="password" name="password" class="form-control form-control-lg" placeholder="••••••••"
+                        required style="font-size: 1rem;">
                 </div>
-            </div>
 
-            <div class="mb-4">
-                <label class="form-label text-secondary fw-bold small ms-1">CONTRASEÑA</label>
-                <div class="input-group">
-                    <span class="input-group-text rounded-start-pill ps-3"><i class="bi bi-lock"></i></span>
-                    <input type="password" name="password" class="form-control form-control-login rounded-end-pill" placeholder="••••••••" required>
-                </div>
-            </div>
-
-            <div class="d-grid gap-2 mt-5">
-                <button type="submit" class="btn btn-primary rounded-pill py-3 fw-bold shadow-sm" style="background: var(--accent-color); border:none; font-size: 1.1rem;">
-                    Ingresar a mi Cuenta
+                <button type="submit" class="btn btn-primary w-100 py-3 mb-4"
+                    style="font-size: 1.1rem; letter-spacing: 1px;">
+                    Ingresar a mi cuenta
                 </button>
-            </div>
+            </form>
 
-            <div class="text-center mt-4">
-                <a href="#" class="text-decoration-none text-secondary small">¿Olvidaste tu contraseña?</a>
+            <div class="text-secondary small" style="font-size: 0.8rem;">
+                Conexión Encriptada de Extremo a Extremo <i class="bi bi-shield-lock-fill ms-1 text-accent"></i>
             </div>
-
-        </form>
+        </div>
     </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-    // Efecto de carga en el botón (Feedback UI según SQAP)
-    document.getElementById('loginForm').addEventListener('submit', function() {
-        const btn = this.querySelector('button[type="submit"]');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Validando...';
-    });
-</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/main.js"></script>
 </body>
+
 </html>
