@@ -1,7 +1,9 @@
 <?php
-class AuthController {
+class AuthController
+{
 
-    public function login() {
+    public function login()
+    {
         global $pdo;
 
         if (isset($_SESSION['user_id'])) {
@@ -29,20 +31,20 @@ class AuthController {
                 }
 
                 // Verificar password
-                if (password_verify($password, $user['password'])) {
+                if (password_verify($password, $user['password_hash'])) {
                     // LOGIN ÉXITO
                     $stmt = $pdo->prepare("UPDATE usuarios SET intentos_fallidos = 0, bloqueado_hasta = NULL WHERE id = :id");
                     $stmt->execute(['id' => $user['id']]);
 
                     $_SESSION['user_id'] = $user['id'];
-                    $_SESSION['nombre'] = $user['nombre'];
+                    $_SESSION['nombre'] = $user['nombre_completo'];
                     $_SESSION['rol'] = $user['rol'];
 
                     // REGISTRO AUDITORÍA: Éxito
                     $this->registrarAuditoria($user['id'], $email, 1, 'Acceso Correcto');
 
                     // Redirección según rol
-                    if($user['rol'] === 'admin'){
+                    if ($user['rol'] === 'admin') {
                         header("Location: index.php?action=dashboard"); // O admin_dashboard si prefieres
                     } else {
                         header("Location: index.php?action=dashboard");
@@ -68,7 +70,8 @@ class AuthController {
         }
     }
 
-    private function manejarFalloLogin($user) {
+    private function manejarFalloLogin($user)
+    {
         global $pdo;
 
         // Aumentamos el contador
@@ -82,7 +85,7 @@ class AuthController {
 
             // --- ENVIAR CORREO (SQAP 2.3) ---
             // Llamamos al helper que ya probaste que funciona
-            EmailHelper::enviar($user['email'], $user['nombre'], 'bloqueo');
+            EmailHelper::enviar($user['email'], $user['nombre_completo'], 'bloqueo');
         }
 
         // Guardamos en Base de Datos
@@ -91,7 +94,8 @@ class AuthController {
     }
 
     // --- NUEVA FUNCIÓN PARA EL SQAP ---
-    private function registrarAuditoria($user_id, $email, $exitoso, $detalle) {
+    private function registrarAuditoria($user_id, $email, $exitoso, $detalle)
+    {
         global $pdo;
         try {
             $ip = $_SERVER['REMOTE_ADDR']; // Obtiene la IP del usuario
@@ -108,7 +112,8 @@ class AuthController {
         }
     }
 
-    public function logout() {
+    public function logout()
+    {
         session_destroy();
         header("Location: index.php?action=login");
         exit;

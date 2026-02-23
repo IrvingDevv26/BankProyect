@@ -1,7 +1,9 @@
 <?php
-class AdminController {
+class AdminController
+{
 
-    public function index() {
+    public function index()
+    {
         global $pdo;
 
         if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'admin') {
@@ -21,7 +23,7 @@ class AdminController {
         $total_dinero = $stmt_money->fetchColumn();
 
         // 2. Lista de Usuarios (Unimos con cuentas para ver saldo y numero de cuenta)
-        $sql_users = "SELECT u.id, u.nombre, u.email, u.bloqueado_hasta, c.saldo, c.numero_cuenta 
+        $sql_users = "SELECT u.id, u.nombre_completo AS nombre, u.email, u.bloqueado_hasta, c.saldo, c.numero_cuenta 
                       FROM usuarios u 
                       LEFT JOIN cuentas c ON u.id = c.usuario_id 
                       WHERE u.rol != 'admin' 
@@ -34,7 +36,8 @@ class AdminController {
         require 'views/admin/dashboard.php';
     }
 
-    public function toggleBloqueo() {
+    public function toggleBloqueo()
+    {
         global $pdo;
         header('Content-Type: application/json');
 
@@ -83,7 +86,8 @@ class AdminController {
         }
     }
 
-    public function auditoria() {
+    public function auditoria()
+    {
         global $pdo;
 
         if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'admin') {
@@ -92,7 +96,7 @@ class AdminController {
         }
 
         // Obtener los últimos 50 accesos (Join con usuarios para ver nombres si existen)
-        $sql = "SELECT a.*, u.nombre 
+        $sql = "SELECT a.*, u.nombre_completo AS nombre 
                 FROM auditoria_login a 
                 LEFT JOIN usuarios u ON a.usuario_id = u.id 
                 ORDER BY a.fecha DESC LIMIT 50";
@@ -104,7 +108,8 @@ class AdminController {
         require 'views/admin/auditoria.php';
     }
 
-    public function emails() {
+    public function emails()
+    {
         global $pdo;
         if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'admin') {
             header("Location: index.php?action=login");
@@ -117,7 +122,8 @@ class AdminController {
 
         require 'views/admin/emails.php';
     }
-    public function depositar() {
+    public function depositar()
+    {
         global $pdo;
         header('Content-Type: application/json');
 
@@ -153,7 +159,7 @@ class AdminController {
 
             // 3. Registrar transacción (Tipo Depósito)
             // Origen NULL porque es depósito de ventanilla
-            $ins = $pdo->prepare("INSERT INTO transacciones (cuenta_origen_id, cuenta_destino_id, monto, tipo, descripcion) 
+            $ins = $pdo->prepare("INSERT INTO transacciones (cuenta_origen_id, cuenta_destino_id, monto, tipo_transaccion, descripcion) 
                                   VALUES (NULL, :cid, :monto, 'deposito', 'Depósito en Ventanilla (Admin)')");
             $ins->execute(['cid' => $cuenta['id'], 'monto' => $monto]);
 
@@ -167,7 +173,8 @@ class AdminController {
     }
 
     // --- VISTA CONFIGURACIÓN (Reutilizamos la vista de perfil del cliente pero adaptada) ---
-    public function configuracion() {
+    public function configuracion()
+    {
         global $pdo;
         if (!isset($_SESSION['user_id']) || $_SESSION['rol'] !== 'admin') {
             header("Location: index.php?action=login");
@@ -185,11 +192,13 @@ class AdminController {
     }
 
     // --- API CREAR USUARIO (Transacción Compleja) ---
-    public function crearUsuario() {
+    public function crearUsuario()
+    {
         global $pdo;
         header('Content-Type: application/json');
 
-        if ($_SESSION['rol'] !== 'admin') exit;
+        if ($_SESSION['rol'] !== 'admin')
+            exit;
 
         $nombre = $_POST['nombre'];
         $email = $_POST['email'];
@@ -213,7 +222,7 @@ class AdminController {
 
             // 2. Insertar Usuario
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            $stmt = $pdo->prepare("INSERT INTO usuarios (nombre, email, password, rol) VALUES (:n, :e, :p, 'cliente')");
+            $stmt = $pdo->prepare("INSERT INTO usuarios (nombre_completo, email, password_hash, rol) VALUES (:n, :e, :p, 'cliente')");
             $stmt->execute(['n' => $nombre, 'e' => $email, 'p' => $hash]);
             $user_id = $pdo->lastInsertId();
 
@@ -232,18 +241,20 @@ class AdminController {
     }
 
     // --- API EDITAR USUARIO ---
-    public function editarUsuario() {
+    public function editarUsuario()
+    {
         global $pdo;
         header('Content-Type: application/json');
 
-        if ($_SESSION['rol'] !== 'admin') exit;
+        if ($_SESSION['rol'] !== 'admin')
+            exit;
 
         $id = $_POST['id'];
         $nombre = $_POST['nombre'];
         $email = $_POST['email'];
 
         try {
-            $stmt = $pdo->prepare("UPDATE usuarios SET nombre = :n, email = :e WHERE id = :id");
+            $stmt = $pdo->prepare("UPDATE usuarios SET nombre_completo = :n, email = :e WHERE id = :id");
             $stmt->execute(['n' => $nombre, 'e' => $email, 'id' => $id]);
             echo json_encode(['ok' => true]);
         } catch (Exception $e) {
