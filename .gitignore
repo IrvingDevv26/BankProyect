@@ -2,3 +2,5 @@
 .DS_Store
 config/db.php
 config/env.php
+tests/
+sonar-project.properties
